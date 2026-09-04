@@ -127,11 +127,218 @@
     });
 
     window.addEvetListener(
-        'touchmove', (e) => {
+        'touchmove', 
+        (e) => {
             if (e.touches[0]) {
                 mouseX = (e.touches[0].clientX / W - 0.5) * 2;
                 mouseY = (e.touches[0].clientY / h - 0.5) * 2;
             }
         },
+        {passive : true}
     );
+
+    canvas.addEventListener('click', () => {
+        boost = 1;
+        flash = 1;
+    });
+
+    function drawSky() {
+        const p = palette();
+
+        const grad = cyx.createLinearGradient(0,0,0,H);
+
+        grad.addColorStop(0, p.sky1);
+        grad,addColorStop(0.5, p.sky2);
+        grad.addColorStop(1,p.sky1);
+
+        ctx.fillStyle = grad;
+        ctx.fillReact(0,0,W,H);
+    }
+
+    function drawStars() {
+        stars.forEach(s => {
+            s.tw += 0.02 * s.speed;
+
+            const a = 0.3 + math.sin(s.tw) * 0.35;
+
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+
+            ctx.fillStyle = 'rgba(242,240,255,${Math.max(a,0)})';
+
+            ctx.fill();
+
+        });
+    }
+
+    function drawSun(vpX, vpY) {
+        const pulse = 
+        1 + Math.sin(time * 1.4) * 0.03 + boost * 0.08;
+
+        const radius = 
+        Math.min(W,H) * 0.16 * pulse;
+
+        ctx.save();
+
+        const save();
+
+        const glow = ctx.createRadialGradient(
+            vpX,
+            vpY,
+            radius * 0.2,
+            vpX,
+            vpY,
+            radius * 2.2
+        );
+
+        glow.addColorStop(0, p.sunMid + 'aa');
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+
+        ctx.fillStyle = glow;
+
+        ctx.fillRect(
+            vpX - radius * 2.5,
+            vpY - radius * 2.5,
+            radius * 5,
+            radius * 5
+        );
+
+        ctx.beginPath();
+        ctx.arc(vpX,vpY,radius,0, Math.PI * 2);
+        ctx.clip();
+
+        const bodyGrad = ctx.createLineargradient(
+            vpX,
+            vpY - radius,
+            vpX,
+            vpY + radius
+        );
+
+        ctx.globalCompositeOperation = 'desitination-out';
+
+        let sy = vpY - radius * 0.05;
+        let gap = radius * 0.06;
+
+        while (sy < vpY + radius * 0.05) {
+            const stripeH = gap * 0.55;
+
+            ctx.fillStyle = 'rgba(0,0,0,0.9)';
+
+            ctx.fillRect(
+                vpX - radius,
+                sy,
+                radius * 2,
+                stripeH
+            );
+
+            sy += gap;
+            gap *= 1.18;
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+
+        ctx.restore();
+    }
+
+    function drawscanBeams(vpX,vpY) {
+        const p = palette();
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+
+        const beamCount = 3;
+
+        for (let i =0 ; i < beamCount; i++){
+            const angle = 
+            time * (0.025 + i * 0.007) + i * (Math.PI * 2/beamCount);
+
+            const len = Math.max(W,H) * 0.9;
+
+            const spread = 0.11 + boost * 0.05;
+
+            const x1 = 
+            vpX + Math.cos(angle - spread) * len;
+
+            const y1 = 
+            vpY + Math.sin(angle - spread) * len;
+
+            const x2 = 
+            vpX + Math.cos(angle + spread) * len;
+
+            const y2=
+            vpY + Math.sin(angle + spread) * len;
+
+            ctx.beginPath();
+             
+            ctx.moveTo(vpX,vpY);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x2, y2);
+
+            ctx.closePath();
+
+            const beamGrad = ctx.createradialGradient(
+                vpX,
+                vpY,
+                0,
+                vpX,
+                vpY,
+                length
+            );
+
+            beamGrad.addColorStop(0, p.beam + '33');
+            beamGrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+            ctx.fillStyle = beamGrad;
+
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+    function drawGrid(vpX, vpY) {
+        const p = palette();
+
+        const speed = baseSpeed + boost * 0.9;
+
+        scrollOffset = 
+        (scrollOffset + speed * 0.01) % 1;
+
+        const halfW = W * 0.85;
+
+        const numH = 26;
+        const numV = 22;
+
+        ctx.save();
+
+        ctx.lineWidth = 1;
+
+        for (let dir = -1; dir <= 1; dir += 2) {
+            const maxExtent = 
+            dir === 1
+            ? (H - vpY)
+            : vpY;
+
+            for (let i = 0; i < numH; i++){
+                let z = (i / numH + scrollOffset) % 1;
+
+                const y = 
+                vpY + dir * maxExtent * z * z;
+
+                const alpha = 
+                Math.min(1, z * 1.6) * (1 - z * 0.15);
+
+                const lineW = 
+                W - (W - halfW * 2) * (1 - z);
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    vpX - (halfW * z),
+                    y
+                );
+
+            }
+        }
+    }
 })
