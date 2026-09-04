@@ -1,12 +1,12 @@
 (function () {
-    const canvass = doucument.getElementById('tunnel');
+    const canvas = document.getElementById('tunnel');
     const ctx = canvas.getContext('2d');
     const panel = document.getElementById('panel');
 
     let W, H, DPR, cx, cy;
 
     function resize(){
-        DPR = Math.min(window.devicePixelRation || 1, 2);
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
         W = window.innerWidth;
         H = window.innerHeight;
 
@@ -29,9 +29,9 @@
             sky2:'#3a0f4f',
             grid:'#00fff2',
             gridAlt:'#ff6ec7',
-            suntop:'#ffe37a',
+            sunTop:'#ffe37a',
             sunMid:'#ff6ec7',
-            sunbottom:'#7b2ff7',
+            sunBottom:'#7b2ff7',
             beam:'#ff6ec7',
         },
         {
@@ -80,9 +80,9 @@
 
         b.className = 'swatch' + (i === paletteIndex ? ' active' : '');
 
-        b.style.background = 'linear-gradient(145deg, ${p.sunMid}, ${p.grid})';
+        b.style.background = `linear-gradient(145deg, ${p.sunMid}, ${p.grid})`;
 
-        b.tittle = p.name;
+        b.title = p.name;
 
         b.addEventListener('click', () => {
             paletteIndex = i;
@@ -107,7 +107,7 @@
                 x: Math.random() * W,
                 y: Math.random() * H,
                 r: Math.random() * 1.1 + 0.2,
-                tx: Math.random() * Math.PI * 2,
+                tw: Math.random() * Math.PI * 2,
                 speed: 0.3 + Math.random() * 0.7
             });
         }
@@ -121,17 +121,17 @@
     let time = 0;
     let flash = 0;
 
-    widow.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', (e) => {
         mouseX = (e.clientX / W - 0.5) * 2;
         mouseY = (e.clientY / H - 0.5) * 2;
     });
 
-    window.addEvetListener(
+    window.addEventListener(
         'touchmove', 
         (e) => {
             if (e.touches[0]) {
                 mouseX = (e.touches[0].clientX / W - 0.5) * 2;
-                mouseY = (e.touches[0].clientY / h - 0.5) * 2;
+                mouseY = (e.touches[0].clientY / H - 0.5) * 2;
             }
         },
         {passive : true}
@@ -145,26 +145,26 @@
     function drawSky() {
         const p = palette();
 
-        const grad = cyx.createLinearGradient(0,0,0,H);
+        const grad = ctx.createLinearGradient(0,0,0,H);
 
         grad.addColorStop(0, p.sky1);
-        grad,addColorStop(0.5, p.sky2);
+        grad.addColorStop(0.5, p.sky2);
         grad.addColorStop(1,p.sky1);
 
         ctx.fillStyle = grad;
-        ctx.fillReact(0,0,W,H);
+        ctx.fillRect(0,0,W,H);
     }
 
     function drawStars() {
         stars.forEach(s => {
             s.tw += 0.02 * s.speed;
 
-            const a = 0.3 + math.sin(s.tw) * 0.35;
+            const a = 0.3 + Math.sin(s.tw) * 0.35;
 
             ctx.beginPath();
             ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
 
-            ctx.fillStyle = 'rgba(242,240,255,${Math.max(a,0)})';
+            ctx.fillStyle = `rgba(242,240,255,${Math.max(a,0)})`;
 
             ctx.fill();
 
@@ -172,6 +172,8 @@
     }
 
     function drawSun(vpX, vpY) {
+        const p = palette();
+
         const pulse = 
         1 + Math.sin(time * 1.4) * 0.03 + boost * 0.08;
 
@@ -180,7 +182,7 @@
 
         ctx.save();
 
-        const save();
+       
 
         const glow = ctx.createRadialGradient(
             vpX,
@@ -207,19 +209,19 @@
         ctx.arc(vpX,vpY,radius,0, Math.PI * 2);
         ctx.clip();
 
-        const bodyGrad = ctx.createLineargradient(
+        const bodyGrad = ctx.createLinearGradient(
             vpX,
             vpY - radius,
             vpX,
             vpY + radius
         );
 
-        ctx.globalCompositeOperation = 'desitination-out';
+        ctx.globalCompositeOperation = 'destination-out';
 
         let sy = vpY - radius * 0.05;
         let gap = radius * 0.06;
 
-        while (sy < vpY + radius * 0.05) {
+        while (sy < vpY + radius) {
             const stripeH = gap * 0.55;
 
             ctx.fillStyle = 'rgba(0,0,0,0.9)';
@@ -240,7 +242,7 @@
         ctx.restore();
     }
 
-    function drawscanBeams(vpX,vpY) {
+    function drawScanBeams(vpX,vpY) {
         const p = palette();
 
         ctx.save();
@@ -250,7 +252,7 @@
 
         for (let i =0 ; i < beamCount; i++){
             const angle = 
-            time * (0.025 + i * 0.007) + i * (Math.PI * 2/beamCount);
+            time * (0.25 + i * 0.07) + i * (Math.PI * 2/beamCount);
 
             const len = Math.max(W,H) * 0.9;
 
@@ -276,13 +278,13 @@
 
             ctx.closePath();
 
-            const beamGrad = ctx.createradialGradient(
+            const beamGrad = ctx.createRadialGradient(
                 vpX,
                 vpY,
                 0,
                 vpX,
                 vpY,
-                length
+                len
             );
 
             beamGrad.addColorStop(0, p.beam + '33');
@@ -337,8 +339,164 @@
                     vpX - (halfW * z),
                     y
                 );
+                
+                ctx.lineTo(
+                    vpX + (halfW * z),
+                    y
+                );
 
+                ctx.strokeStyle = 
+                i % 4 === 0
+                ? p.gridAlt
+                :p.grid;
+
+                ctx.globalAlpha = 
+                alpha * 0.85;
+
+                ctx.lineWidth = 
+                0.6 + z * 1.8;
+
+                ctx.shadowColor = p.grid;
+
+                ctx.stroke();
             }
         }
+
+        ctx.shadowBlur = 4;
+
+        for (
+            let i = -numV / 2;
+            i <= numV /2;
+            i++
+        ){
+            const t = 
+            i / (numV / 2);
+
+            const xHorizon = 
+            vpX + t * 6;
+
+            const xEdge =
+            vpX + t * halfW;
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+            xHorizon,
+            vpY
+            );
+
+        ctx.lineTo(
+            xEdge,
+            vpY + (H - vpY)
+        );
+
+        ctx.moveTo(
+            xHorizon,
+            vpY
+        );
+
+        ctx.lineTo(
+            xEdge,
+            vpY - vpY
+        );
+
+        ctx.strokeStyle = 
+        i % 3 === 0 
+        ? p.gridAlt
+        : p.grid;
+
+        ctx.globalAlpha = 0.35;
+
+        ctx.lineWidth = 0.7;
+
+        ctx.stroke();
     }
-})
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    }
+
+    function drawScanlines() {
+        ctx.save();
+
+        ctx.globalAlpha = 0.06;
+        ctx.fillStyle = '#000';
+        
+        for (let y = 0; y < H; y += 3) {
+            ctx.fillRect(0, y, W, 1);
+        }
+
+        ctx.restore();
+
+        const vg = ctx.createRadialGradient(
+            cx,
+            cy,
+            Math.min(W, H) * 0.2,
+            cx,
+            cy,
+            Math.max(W,H) * 0.75
+        );
+
+        vg.addColorStop(
+            0,
+            'rgba(0,0,0,0)'
+        );
+
+        ctx.fillStyle = vg;
+
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    function frame() {
+        time += 0.016;
+
+        boost *= 0.94;
+        flash *= 0.9;
+
+        camX += (mouseX * 40 - camX) * 0.04;
+
+        camY += (mouseY * 24 - camY) * 0.04;
+
+        const vpX = 
+        cx + camX;
+
+        const vpY =
+        cy + camY;
+
+        drawSky();
+        drawStars();
+        drawSun(vpX, vpY);
+        drawScanBeams(vpX,vpY);
+        drawGrid(vpX,vpY);
+        drawScanlines();
+
+        if(flash > 0.02) {
+            ctx.save();
+
+            ctx.globalAlpha = 
+            flash * 0.35;
+
+            ctx.fillStyle = '#fff';
+
+            ctx.fillRect(
+                0,
+                0,
+                W,
+                H
+            );
+            ctx.restore();
+        }
+
+        requestAnimationFrame(frame);
+
+    }
+    window.addEventListener(
+        'resize',
+        resize
+    );
+
+    resize();
+
+    requestAnimationFrame(frame);
+})();
