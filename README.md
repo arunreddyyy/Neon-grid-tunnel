@@ -19,19 +19,14 @@ Features
 
 Getting Started
 
+Run Locally
+
  Clone the repository:
    
    git clone https://github.com/arunreddyyy/Neon-grid-tunnel.git
 
 
 This project explores creative frontend development by combining animated grids, neon lighting, and perspective effects to create an atmospheric digital background.
-
-Future Improvements
-
-- Add interactive mouse effects.
-- Introduce customizable neon colors.
-- Add multiple animation themes.
-- Improve responsiveness for mobile devices.
 
 ---
 
