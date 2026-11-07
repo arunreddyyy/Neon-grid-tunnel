@@ -26,6 +26,9 @@ Run Locally
 
    use the git page link to play the site
    https://arunreddyyy.github.io/Neon-grid-tunnel/
+   
+<img width="1366" height="768" alt="Screenshot (163)" src="https://github.com/user-attachments/assets/46960c4f-bbac-445d-b581-b8c2940c3fb4" />
+<img width="1366" height="768" alt="Screenshot (164)" src="https://github.com/user-attachments/assets/dc913687-1cd2-4983-9187-9ae55c67b0f7" />
 
 This project mixes moving grids, neon lights, and depth effects to make a cool background using basic web design.
 
